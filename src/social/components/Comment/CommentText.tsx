@@ -6,6 +6,7 @@ import MentionHighlightTag from '~/core/components/MentionHighlightTag';
 import { processChunks } from '~/core/components/ChunkHighlighter';
 import Linkify from '~/core/components/Linkify';
 import { CommentContent, ReadMoreButton } from './styles';
+import CorrectIcon from './CorrectIcon';
 
 const COMMENT_MAX_LINES = 8;
 
@@ -14,6 +15,7 @@ interface CommentTextProps {
   className?: string;
   mentionees?: Mentioned[];
   maxLines?: number;
+  isMark?: boolean
 }
 
 const CommentText = ({
@@ -21,6 +23,7 @@ const CommentText = ({
   className,
   mentionees,
   maxLines = COMMENT_MAX_LINES,
+  isMark = false
 }: CommentTextProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const chunks = useMemo(
@@ -31,7 +34,7 @@ const CommentText = ({
   const expand = () => setIsExpanded(true);
 
   const textContent = text ? (
-    <CommentContent data-qa-anchor="comment-content" className={className}>
+    <CommentContent style={{ background: isMark ? '#ECF8EE' : '', border: isMark ? '1px solid #44B556' : '', display: 'flex', alignItems: 'center' }} data-qa-anchor="comment-content" className={className}>
       <Truncate.Atom>
         {chunks.map((chunk) => {
           const key = `${text}-${chunk.start}-${chunk.end}`;
@@ -50,6 +53,13 @@ const CommentText = ({
           }
           return <Linkify key={key}>{sub}</Linkify>;
         })}
+        {isMark &&
+          <div style={{ padding: 5, height: 24, width: 24, background: '#fff', borderRadius: 24, marginLeft: 8 }}>
+            <CorrectIcon />
+          </div>
+        }
+
+
       </Truncate.Atom>
     </CommentContent>
   ) : null;

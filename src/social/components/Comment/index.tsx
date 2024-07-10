@@ -115,12 +115,12 @@ const Comment = ({ commentId, readonly }: CommentProps) => {
 
   // const [text, setText] = useState((comment?.data as Amity.ContentDataText)?.text || '');
 
-  const { canDelete, canEdit, canLike, canReply, canReport } = useCommentPermission(
+  const { canDelete, canEdit, canLike, canReply, canReport, canMarkAsCorrect } = useCommentPermission(
     comment,
     readonly,
     userRoles,
   );
-
+  console.log('canMarkAsCorrect 1st: ', canMarkAsCorrect);
   // useEffect(() => {
   //   if (text !== (comment?.data as Amity.ContentDataText)?.text) {
   //     setText((comment?.data as Amity.ContentDataText)?.text || '');
@@ -250,6 +250,7 @@ const Comment = ({ commentId, readonly }: CommentProps) => {
       isReplyComment={isReplyComment}
       onClickReply={onClickReply}
       onChange={onChange}
+      canMarkAsCorrect={canMarkAsCorrect}
     />
   );
 

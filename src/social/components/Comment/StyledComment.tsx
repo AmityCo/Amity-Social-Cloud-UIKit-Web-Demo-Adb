@@ -33,11 +33,16 @@ import { useNotifications } from '~/core/providers/NotificationProvider';
 import { useDropdown } from '~/core/components/Dropdown/index';
 import useElementSize from '~/core/hooks/useElementSize';
 import { Frame, FrameContainer } from '~/core/components/Dropdown/styles';
+import { CommentRepository } from '@amityco/ts-sdk';
 
 type OptionMenuProps = StyledCommentProps & {
   onEditCommentClick: () => void;
   onClose: () => void;
   buttonContainerHeight: number;
+  onMarkAsCorrect?: () => void;
+  canMarkAsCorrect?: boolean;
+  isMarkAsCorrect?: boolean;
+  onUnMarkTheAnswer?: () => void;
 };
 
 const OptionMenu = ({
@@ -45,16 +50,22 @@ const OptionMenu = ({
   canDelete = false,
   canEdit = false,
   canReport = true,
+  canMarkAsCorrect = false,
   handleReportComment,
   startEditing,
   handleDelete,
   isReplyComment,
   onClose,
   buttonContainerHeight,
+  onMarkAsCorrect,
+  isMarkAsCorrect = false,
+  onUnMarkTheAnswer
 }: OptionMenuProps) => {
   const { formatMessage } = useIntl();
   const notification = useNotifications();
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+
 
   const { currentPosition, align, scrollableHeight } = useDropdown({
     dropdownRef,
@@ -62,6 +73,8 @@ const OptionMenu = ({
   });
 
   const { isFlaggedByMe: isReported, toggleFlagComment } = useCommentFlaggedByMe(commentId);
+
+
 
   const onReportClick = async () => {
     try {
@@ -88,29 +101,36 @@ const OptionMenu = ({
   const options = [
     canEdit
       ? {
-          name: isReplyComment
-            ? formatMessage({ id: 'reply.edit' })
-            : formatMessage({ id: 'comment.edit' }),
-          action: startEditing,
-        }
+        name: isReplyComment
+          ? formatMessage({ id: 'reply.edit' })
+          : formatMessage({ id: 'comment.edit' }),
+        action: startEditing,
+      }
       : null,
     canReport
       ? {
-          name: isReported
-            ? formatMessage({ id: 'report.undoReport' })
-            : formatMessage({ id: 'report.doReport' }),
-          action: onReportClick,
-        }
+        name: isReported
+          ? formatMessage({ id: 'report.undoReport' })
+          : formatMessage({ id: 'report.doReport' }),
+        action: onReportClick,
+      }
       : null,
     canDelete
       ? {
-          name: isReplyComment
-            ? formatMessage({ id: 'reply.delete' })
-            : formatMessage({ id: 'comment.delete' }),
-          action: handleDelete,
-        }
+        name: isReplyComment
+          ? formatMessage({ id: 'reply.delete' })
+          : formatMessage({ id: 'comment.delete' }),
+        action: handleDelete,
+      }
       : null,
+
+    (canMarkAsCorrect && !isMarkAsCorrect) ? { name: 'Mark as Correct', action: () => onMarkAsCorrect && onMarkAsCorrect() } :
+      { name: 'Unmark the answer', action: () => onUnMarkTheAnswer && onUnMarkTheAnswer() }
+    ,
+
+
   ].filter(isNonNullable);
+  console.log('options: ', options);
 
   return (
     <OptionMenuContainer ref={dropdownRef}>
@@ -143,6 +163,7 @@ interface StyledCommentProps {
   canLike?: boolean;
   canReply?: boolean;
   canReport?: boolean;
+  canMarkAsCorrect?: boolean
   createdAt?: Date;
   editedAt?: Date;
   text?: string;
@@ -192,11 +213,13 @@ const StyledComment = (props: StyledCommentProps) => {
     queryMentionees,
     isBanned,
     mentionees,
+    metadata,
   } = props;
   const { formatMessage } = useIntl();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [buttonContainerRef, buttonContainerHeight] = useElementSize();
+  const { isMarkAsCorrect } = metadata ?? {}
 
   const toggle = () => setIsMenuOpen((prev) => !prev);
 
@@ -212,6 +235,34 @@ const StyledComment = (props: StyledCommentProps) => {
     };
   }, [isMenuOpen]);
 
+  const markComment = async () => {
+
+    const updatedComment = {
+      data: {
+        text: text,
+      },
+      metadata: { isMarkAsCorrect: true },
+      referenceType: 'post' as Amity.CommentReferenceType, // 'content' | 'post' | 'story'
+    };
+
+    const { data: comment } = await CommentRepository.updateComment(commentId as string, updatedComment);
+    console.log('comment: ', comment);
+
+  }
+  const unMarkComment = async () => {
+
+    const updatedComment = {
+      data: {
+        text: text,
+      },
+      metadata: { isMarkAsCorrect: false },
+      referenceType: 'post' as Amity.CommentReferenceType, // 'content' | 'post' | 'story'
+    };
+
+    const { data: comment } = await CommentRepository.updateComment(commentId as string, updatedComment);
+    console.log('comment: ', comment);
+
+  }
   return (
     <>
       <Avatar avatar={authorAvatar} backgroundImage={UserImage} />
@@ -275,7 +326,16 @@ const StyledComment = (props: StyledCommentProps) => {
             </ButtonContainer>
           </CommentEditContainer>
         ) : (
-          <CommentText text={text} mentionees={mentionees} />
+          <div style={{ display: 'flex', gap: 8 }}>
+            <CommentText text={text} mentionees={mentionees} isMark={isMarkAsCorrect} />
+            {
+              isMarkAsCorrect &&
+              <p style={{ color: '#44B556' }}>Correct answer</p>
+            }
+
+
+          </div>
+
         )}
 
         {!isEditing && (canLike || canReply) && (
@@ -305,6 +365,9 @@ const StyledComment = (props: StyledCommentProps) => {
                   onClose={toggle}
                   onEditCommentClick={() => startEditing()}
                   buttonContainerHeight={buttonContainerHeight}
+                  onMarkAsCorrect={markComment}
+                  isMarkAsCorrect={isMarkAsCorrect}
+                  onUnMarkTheAnswer={unMarkComment}
                 />
               )}
             </OptionButtonContainer>

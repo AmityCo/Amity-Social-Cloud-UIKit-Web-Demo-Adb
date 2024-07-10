@@ -1,6 +1,6 @@
 import './inter.css';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Client as ASCClient } from '@amityco/ts-sdk';
+import { Client as ASCClient, UserRepository } from '@amityco/ts-sdk';
 
 import { ThemeProvider } from 'styled-components';
 import { NotificationsContainer } from '~/core/components/Notification';
@@ -44,7 +44,7 @@ interface UiKitProviderProps {
   theme?: Record<string, unknown>;
   children?: React.ReactNode;
   actionHandlers?: {
-    onChangePage?: (data: { type: string; [x: string]: string | boolean }) => void;
+    onChangePage?: (data: { type: string;[x: string]: string | boolean }) => void;
     onClickCategory?: (categoryId: string) => void;
     onClickCommunity?: (communityId: string) => void;
     onClickUser?: (userId: string) => void;
@@ -84,6 +84,8 @@ const UiKitProvider = ({
   const stateChangeRef = useRef<(() => void) | null>(null);
   const disconnectedChangeRef = useRef<(() => void) | null>(null);
   const currentUser = useUser(userId);
+
+
   const sdkContextValue = useMemo(
     () => ({
       client: client || null,

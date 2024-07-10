@@ -10,6 +10,7 @@ export type Mentioned = { userId: string; length: number; index: number; type: s
 export type Mentionees = Parameters<typeof CommentRepository.updateComment>[1]['mentionees'];
 export type Metadata = {
   mentioned?: Mentioned[];
+  isMarkAsCorrect?: boolean;
 };
 
 /**
