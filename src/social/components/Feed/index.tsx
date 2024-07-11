@@ -318,6 +318,11 @@ interface BaseFeedProps {
   goToExplore?: () => void;
   readonly?: boolean;
   isHiddenProfile?: boolean;
+  posts?: Amity.Post[];
+  hasMore?: boolean;
+  loadMore?: () => void;
+  isLoading?: boolean;
+  loadMoreHasBeenCalled?: boolean;
 }
 
 const BaseFeed = ({
@@ -412,6 +417,98 @@ const BaseFeed = ({
   );
 };
 
+const SearchFeed = ({
+  className = '',
+  feedType,
+  targetType,
+  targetId = '',
+  showPostCreator = false,
+  onPostCreated,
+  goToExplore,
+  readonly = false,
+  isHiddenProfile = false,
+  posts = [],
+  hasMore = false,
+  loadMore = () => {},
+  isLoading = false,
+  loadMoreHasBeenCalled = false,
+}: BaseFeedProps) => {
+  const {
+    communities,
+    hasMore: hasMoreCommunities,
+    loadMore: loadMoreCommunities,
+  } = useCommunitiesCollection({
+    membership: 'member',
+  });
+
+  function renderLoadingSkeleton() {
+    return new Array(3).fill(3).map((_, index) => <DefaultPostRenderer key={index} loading />);
+  }
+
+  return (
+    <>
+      {showPostCreator && (
+        <PostCreator
+          data-qa-anchor="feed-post-creator-textarea"
+          targetType={targetType}
+          targetId={targetId}
+          communities={communities}
+          enablePostTargetPicker={false}
+          hasMoreCommunities={hasMoreCommunities}
+          loadMoreCommunities={loadMoreCommunities}
+          onCreateSuccess={onPostCreated}
+        />
+      )}
+      <FeedScrollContainer
+        className={className}
+        dataLength={posts.length}
+        next={loadMore}
+        hasMore={hasMore}
+        loader={null}
+      >
+        {!isHiddenProfile ? (
+          <>
+            {isLoading && !loadMoreHasBeenCalled ? renderLoadingSkeleton() : null}
+
+            {!isLoading && posts.length > 0 && (
+              <LoadMoreWrapper
+                hasMore={hasMore}
+                loadMore={loadMore}
+                className="load-more no-border"
+                contentSlot={
+                  <>
+                    {posts.map((post) => (
+                      <Post
+                        key={post.postId}
+                        postId={post.postId}
+                        hidePostTarget
+                        readonly={readonly}
+                      />
+                    ))}
+                  </>
+                }
+              />
+            )}
+
+            {!isLoading && posts.length === 0 && (
+              <EmptyFeed
+                targetType={targetType}
+                goToExplore={goToExplore}
+                canPost={showPostCreator}
+                feedType={feedType}
+              />
+            )}
+
+            {isLoading && loadMoreHasBeenCalled ? renderLoadingSkeleton() : null}
+          </>
+        ) : (
+          <PrivateFeed />
+        )}
+      </FeedScrollContainer>
+    </>
+  );
+};
+
 interface FeedProps {
   className?: string;
   feedType?: 'reviewing' | 'published';
@@ -422,6 +519,8 @@ interface FeedProps {
   goToExplore?: () => void;
   readonly?: boolean;
   isHiddenProfile?: boolean;
+  posts?: Amity.Post[];
+  isLoading?: boolean;
 }
 
 const getActualTargetType = (targetType: string | undefined | null) => {
@@ -429,11 +528,12 @@ const getActualTargetType = (targetType: string | undefined | null) => {
   if (targetType === 'userFeed') return 'user';
   if (targetType === 'globalFeed') return 'feed';
   if (targetType === 'global') return 'feed';
+  if (targetType === 'search') return 'search';
   return targetType || 'myFeed';
 };
 
 const Feed = (props: FeedProps) => {
-  const { targetType, ...rest } = props;
+  const { targetType, posts, isLoading, ...rest } = props;
 
   const actualTargetType = getActualTargetType(targetType);
 
@@ -446,6 +546,12 @@ const Feed = (props: FeedProps) => {
 
   if (actualTargetType === 'community') {
     return <CommunityFeed {...rest} targetType={actualTargetType} />;
+  }
+
+  if (actualTargetType === 'search') {
+    return (
+      <SearchFeed {...rest} targetType={actualTargetType} posts={posts} isLoading={isLoading} />
+    );
   }
 
   return <BaseFeed {...rest} targetType={actualTargetType} />;

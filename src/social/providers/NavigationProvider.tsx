@@ -52,6 +52,7 @@ type ContextValue = {
   onChangePage: (type: string) => void;
   onClickCategory: (categoryId: string) => void;
   onClickCommunity: (communityId: string) => void;
+  onClickPost: (postId: string) => void;
   onClickUser: (userId: string, pageType?: string) => void;
   onClickStory: (
     storyId: string,
@@ -86,6 +87,7 @@ let defaultValue: ContextValue = {
   onChangePage: (type: string) => {},
   onClickCategory: (categoryId: string) => {},
   onClickCommunity: (communityId: string) => {},
+  onClickPost: (postId: string) => {},
   onClickUser: (userId: string) => {},
   onClickStory: (
     storyId: string,
@@ -115,6 +117,7 @@ if (process.env.NODE_ENV !== 'production') {
       console.log(`NavigationContext onClickCategory(${categoryId})`),
     onClickCommunity: (communityId) =>
       console.log(`NavigationContext onClickCommunity(${communityId})`),
+    onClickPost: (postId) => console.log(`NavigationContext onClickPost(${postId})`),
     onClickUser: (userId) => console.log(`NavigationContext onClickUser(${userId})`),
     onClickStory: (storyId, storyType, targetIds) =>
       console.log(`NavigationContext onClickStory(${storyId}, ${storyType}, ${targetIds})`),
@@ -146,6 +149,7 @@ interface NavigationProviderProps {
   onChangePage?: (data: { type: string; [x: string]: string | boolean }) => void;
   onClickCategory?: (categoryId: string) => void;
   onClickCommunity?: (communityId: string) => void;
+  onClickPost?: (postId: string) => void;
   onClickUser?: (userId: string) => void;
   onClickStory?: (
     storyId: string,
@@ -166,6 +170,7 @@ export default function NavigationProvider({
   onChangePage: onChangePageProp,
   onClickCategory,
   onClickCommunity,
+  onClickPost,
   onClickUser,
   onCommunityCreated,
   onEditCommunity,
@@ -254,6 +259,21 @@ export default function NavigationProvider({
       pushPage(next);
     },
     [onChangePage, onClickCommunity, pushPage],
+  );
+
+  const handleClickPost = useCallback(
+    (postId) => {
+      const next = {
+        type: PageTypes.PostSearchPage,
+        postId,
+      };
+
+      if (onChangePage) return onChangePage(next);
+      if (onClickPost) return onClickPost(postId);
+
+      pushPage(next);
+    },
+    [onChangePage, onClickPost, pushPage],
   );
 
   const handleCommunityCreated = useCallback(
@@ -398,6 +418,7 @@ export default function NavigationProvider({
         onClickUser: handleClickUser,
         onClickStory: handleClickStory,
         onCommunityCreated: handleCommunityCreated,
+        onClickPost: handleClickPost,
         onEditCommunity: handleEditCommunity,
         onEditUser: handleEditUser,
         onMessageUser: handleMessageUser,

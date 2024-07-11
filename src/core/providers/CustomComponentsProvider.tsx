@@ -54,6 +54,7 @@ type CustomComponentName =
   | 'UIUserInfo'
   | 'UserChip'
   | 'UserHeader'
+  | 'UISearchPostHeader'
   // | 'UserSelector'
   | 'UserSelector';
 

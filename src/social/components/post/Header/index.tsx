@@ -4,7 +4,6 @@ import usePost from '~/social/hooks/usePost';
 import UIPostHeader from './UIPostHeader';
 import { usePostHeaderProps } from './hooks';
 import useUser from '~/core/hooks/useUser';
-import useFile from '~/core/hooks/useFile';
 import useImage from '~/core/hooks/useImage';
 
 interface PostHeaderProps {
