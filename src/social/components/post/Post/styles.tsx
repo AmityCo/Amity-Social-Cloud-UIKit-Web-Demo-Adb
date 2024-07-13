@@ -33,6 +33,7 @@ export const PostContainer = styled(PlainPostContainer)`
   background: ${({ theme }) => theme.palette.system.background};
   border: 1px solid #edeef2;
   border-radius: 4px;
+  margin: 4px 0px;
 `;
 
 export const PostHeadContainer = styled.div`

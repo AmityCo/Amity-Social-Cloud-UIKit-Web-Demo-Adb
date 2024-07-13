@@ -19,18 +19,21 @@ interface CommentListProps {
   readonly?: boolean;
   isExpanded?: boolean;
   limit?: number;
+  pinnedComment?: string;
+  
 }
 
 const InnerCommentList = ({
   parentId,
   referenceId,
   referenceType,
-  limit = 5,
+  limit = 1,
   // TODO: breaking change
   // filterByParentId = false,
   readonly = false,
   isExpanded = true,
   callLoadMoreAgain = false,
+  pinnedComment
 }: CommentListProps & {
   callLoadMoreAgain?: boolean;
 }) => {
@@ -89,6 +92,7 @@ const PostCommentList = (props: CommentListProps) => {
     // filterByParentId = false,
     readonly = false,
     isExpanded = true,
+    pinnedComment
   } = props;
   const { formatMessage } = useIntl();
   const [firstRender, setFirstRender] = useState(true);
@@ -124,7 +128,7 @@ const PostCommentList = (props: CommentListProps) => {
         appendIcon={null}
         isExpanded={isExpanded}
         contentSlot={(post?.latestComments || []).map((comment: Amity.Comment) => (
-          <Comment key={comment.commentId} commentId={comment.commentId} readonly={readonly} />
+          <Comment pinnedComment={pinnedComment} key={comment.commentId} commentId={comment.commentId} readonly={readonly} />
         ))}
       />
     );

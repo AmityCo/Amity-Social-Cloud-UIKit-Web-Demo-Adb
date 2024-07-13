@@ -21,7 +21,7 @@ import useCommunityPostPermission from '~/social/hooks/useCommunityPostPermissio
 import useCommunity from '~/social/hooks/useCommunity';
 import useSDK from '~/core/hooks/useSDK';
 import usePostSubscription from '~/social/hooks/usePostSubscription';
-import { SubscriptionLevels } from '@amityco/ts-sdk';
+import { PostRepository, SubscriptionLevels } from '@amityco/ts-sdk';
 import { useConfirmContext } from '~/core/providers/ConfirmProvider';
 import { useNotifications } from '~/core/providers/NotificationProvider';
 import usePostFlaggedByMe from '~/social/hooks/usePostFlaggedByMe';
@@ -65,6 +65,7 @@ const OptionMenu = ({
   const { isFlaggedByMe, toggleFlagPost } = usePostFlaggedByMe(post);
 
   const communityId = post?.targetId;
+  console.log('post: ', post);
   const community = useCommunity(communityId);
   const { currentUserId } = useSDK();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -85,6 +86,16 @@ const OptionMenu = ({
     });
 
   const pollPost = childrenPosts.find((childPost) => childPost.dataType === 'poll');
+
+  const addPostToMergePanel = async () => {
+    const updatedPost = {
+      metadata: { mergePostIds: [post.postId,'669102c4579282f1f70ad037','66755da90790ee74d7313470'] }
+
+    };
+
+    const { data } = await PostRepository.updatePost(post.postId, updatedPost);
+    console.log('data: ', data);
+  }
 
   const onReportClick = async () => {
     toggleFlagPost();
@@ -112,30 +123,31 @@ const OptionMenu = ({
   const options = [
     canEdit
       ? {
-          name: formatMessage({ id: 'post.editPost' }),
-          action: () => onEditPostClick(),
-        }
+        name: formatMessage({ id: 'post.editPost' }),
+        action: () => onEditPostClick(),
+      }
       : null,
     canDelete
       ? {
-          name: formatMessage({ id: 'post.deletePost' }),
-          action: confirmDeletePost,
-        }
+        name: formatMessage({ id: 'post.deletePost' }),
+        action: confirmDeletePost,
+      }
       : null,
     canReport
       ? {
-          name: isFlaggedByMe
-            ? formatMessage({ id: 'report.undoReport' })
-            : formatMessage({ id: 'report.doReport' }),
-          action: isFlaggedByMe ? onUnreportClick : onReportClick,
-        }
+        name: isFlaggedByMe
+          ? formatMessage({ id: 'report.undoReport' })
+          : formatMessage({ id: 'report.doReport' }),
+        action: isFlaggedByMe ? onUnreportClick : onReportClick,
+      }
       : null,
     !!pollPost && !isPollClosed
       ? {
-          name: formatMessage({ id: 'poll.close' }),
-          action: handleClosePoll,
-        }
+        name: formatMessage({ id: 'poll.close' }),
+        action: handleClosePoll,
+      }
       : null,
+    { name: 'Add to merge panel', action: addPostToMergePanel }
   ].filter(isNonNullable);
 
   return (
@@ -300,11 +312,12 @@ const DefaultPostRenderer = (props: DefaultPostRendererProps) => {
             dataType={liveStreamContent?.dataType ?? post?.dataType}
             postMaxLines={postMaxLines}
             mentionees={post?.metadata?.mentioned}
+
           />
 
           {hasChildrenPosts && <ChildrenContent contents={childrenPosts} />}
 
-          {!isPostUnderReview && <EngagementBar readonly={readonly} postId={post?.postId} />}
+          {!isPostUnderReview && <EngagementBar readonly={readonly} postId={post?.postId}  />}
 
           {isPostUnderReview && canReview && (
             <ReviewButtonsContainer data-qa-anchor="post-review">

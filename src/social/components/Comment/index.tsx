@@ -84,9 +84,10 @@ interface CommentProps {
   commentId: string;
   readonly?: boolean;
   userRoles?: string[];
+  pinnedComment?: string;
 }
 
-const Comment = ({ commentId, readonly }: CommentProps) => {
+const Comment = ({ commentId, readonly, pinnedComment }: CommentProps) => {
   const comment = useComment(commentId);
   const post = usePost(comment?.referenceId);
   const { confirm } = useConfirmContext();
@@ -120,7 +121,6 @@ const Comment = ({ commentId, readonly }: CommentProps) => {
     readonly,
     userRoles,
   );
-  console.log('canMarkAsCorrect 1st: ', canMarkAsCorrect);
   // useEffect(() => {
   //   if (text !== (comment?.data as Amity.ContentDataText)?.text) {
   //     setText((comment?.data as Amity.ContentDataText)?.text || '');
@@ -251,6 +251,7 @@ const Comment = ({ commentId, readonly }: CommentProps) => {
       onClickReply={onClickReply}
       onChange={onChange}
       canMarkAsCorrect={canMarkAsCorrect}
+      pinnedComment={pinnedComment}
     />
   );
 

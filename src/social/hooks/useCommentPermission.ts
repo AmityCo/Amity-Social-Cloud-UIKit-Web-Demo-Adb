@@ -24,7 +24,7 @@ const useCommentPermission = (
   useEffect(() => {
     if (currentUserId) {
       UserRepository.getUser(currentUserId, (value) => {
-        console.log('value: ', value);
+
         if (value.data.roles.includes('global-admin')) {
           setIsGlobalAdmin(true)
         }

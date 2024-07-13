@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import millify from 'millify';
 import { FormattedMessage } from 'react-intl';
 
@@ -18,7 +18,8 @@ import { Mentionees, Metadata } from '~/helpers/utils';
 import { useCustomComponent } from '~/core/providers/CustomComponentsProvider';
 import usePostSubscription from '~/social/hooks/usePostSubscription';
 import { SubscriptionLevels } from '@amityco/ts-sdk';
-
+import { MdOutlineExpandCircleDown } from "react-icons/md";
+import Comment from '~/social/components/Comment';
 const COMMENTS_PER_PAGE = 5;
 
 interface UIEngagementBarProps {
@@ -27,6 +28,7 @@ interface UIEngagementBarProps {
   onClickComment?: () => void;
   isComposeBarDisplayed?: boolean;
   handleAddComment?: (text: string, mentionees: Mentionees, metadata: Metadata) => void;
+  pinnedComment?: any;
 }
 
 const UIEngagementBar = ({
@@ -35,8 +37,24 @@ const UIEngagementBar = ({
   onClickComment,
   isComposeBarDisplayed,
   handleAddComment,
+  pinnedComment
 }: UIEngagementBarProps) => {
   const { postId, targetType, targetId, reactions = {}, commentsCount, latestComments } = post;
+  const [pinnedCommentID, setPinnedCommentID] = useState<string>('')
+  const { pinnedComment: commentId } = pinnedComment ?? {};
+
+
+
+  useEffect(() => {
+    if (commentId) {
+
+      setPinnedCommentID(commentId)
+    }
+    else if (!commentId && latestComments.length > 0) {
+      setPinnedCommentID(latestComments[0].commentId)
+    }
+  }, [commentId])
+
 
   usePostSubscription({
     postId,
@@ -45,6 +63,7 @@ const UIEngagementBar = ({
 
   const totalLikes = reactions[LIKE_REACTION_KEY] || 0;
 
+  const [expandComment, setExpandComment] = useState<boolean>(false)
   return (
     <EngagementBarContainer>
       <Counters>
@@ -73,9 +92,37 @@ const UIEngagementBar = ({
               <CommentIcon /> <FormattedMessage id="comment" />
             </SecondaryButton>
           </InteractionBar>
-          {post.commentsCount > 0 ? (
-            <CommentList referenceId={postId} referenceType={'post'} limit={COMMENTS_PER_PAGE} />
-          ) : null}
+          {!expandComment && pinnedCommentID && <Comment key={pinnedCommentID} commentId={pinnedCommentID} />}
+
+
+          {expandComment && post.commentsCount > 0 ?
+
+            <CommentList pinnedComment={pinnedCommentID} referenceId={postId} referenceType={'post'} limit={COMMENTS_PER_PAGE} />
+            :
+
+            post.commentsCount > 1 &&
+            <div
+              style={{
+                padding: '12px 0px',
+                fontWeight: 600,
+                fontSize: 14,
+                borderBottom: '1px solid #EBECEF',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center'
+              }}
+              onClick={() => setExpandComment(true)}
+            >
+
+              View all comments
+              <MdOutlineExpandCircleDown style={{ height: 20, width: 20, marginLeft: 4 }} />
+            </div>
+          }
+
+          {/* {post.commentsCount > 0 ? (
+            <CommentList pinnedComment={pinnedComment} referenceId={postId} referenceType={'post'} limit={COMMENTS_PER_PAGE} />
+          ) : null} */}
+
 
           {isComposeBarDisplayed && (
             <CommentComposeBar
@@ -96,6 +143,7 @@ const UIEngagementBar = ({
               referenceId={postId}
               referenceType={'post'}
               limit={COMMENTS_PER_PAGE}
+              pinnedComment={pinnedComment}
               readonly
             />
           ) : null}

@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { CommentRepository, SubscriptionLevels } from '@amityco/ts-sdk';
 
 import usePost from '~/social/hooks/usePost';
@@ -23,8 +23,20 @@ const EngagementBar = ({ postId, readonly = false }: EngagementBarProps) => {
   const toggleComposeBar = () => setComposeBarDisplayed((prevValue) => !prevValue);
 
   const hideComposeBar = () => setComposeBarDisplayed(false);
+  const [metaData, setMetaData] = useState()
+  const { pinnedComment } = metaData as { pinnedComment: string } | undefined ?? {}
+
 
   const post = usePost(postId);
+
+  useEffect(() => {
+    if (post) setMetaData(post.metadata)
+
+  }, [post])
+
+
+
+
   const { clearAll } = useSocialMention({
     targetType: post?.targetType,
     targetId: post?.targetId,
@@ -78,6 +90,7 @@ const EngagementBar = ({ postId, readonly = false }: EngagementBarProps) => {
       isComposeBarDisplayed={isComposeBarDisplayed}
       handleAddComment={handleAddComment}
       onClickComment={toggleComposeBar}
+      pinnedComment={metaData}
     />
   );
 };

@@ -16,7 +16,8 @@ import useCommunitySubscription from '~/social/hooks/useCommunitySubscription';
 import { SubscriptionLevels } from '@amityco/ts-sdk';
 import usePostsCollection from '~/social/hooks/collections/usePostsCollection';
 import useCommunitiesCollection from '~/social/hooks/collections/useCommunitiesCollection';
-
+import Carousel from "react-multi-carousel";
+import "react-multi-carousel/lib/styles.css";
 interface GlobalFeedProps {
   className?: string;
   feedType?: 'reviewing' | 'published';
@@ -41,7 +42,23 @@ const GlobalFeed = ({
   function renderLoadingSkeleton() {
     return new Array(3).fill(3).map((_, index) => <DefaultPostRenderer key={index} loading />);
   }
-
+  const responsive = {
+    desktop: {
+      breakpoint: { max: 3000, min: 1024 },
+      items: 1,
+      slidesToSlide: 1 // optional, default to 1.
+    },
+    tablet: {
+      breakpoint: { max: 1024, min: 464 },
+      items: 2,
+      slidesToSlide: 2 // optional, default to 1.
+    },
+    mobile: {
+      breakpoint: { max: 464, min: 0 },
+      items: 1,
+      slidesToSlide: 1 // optional, default to 1.
+    }
+  };
   return (
     <>
       {showPostCreator ? (
@@ -70,13 +87,34 @@ const GlobalFeed = ({
                 loadMore={loadMore}
                 className="load-more no-border"
                 contentSlot={contents.map((content) => (
-                  <Post
-                    key={content.postId}
-                    postId={content.postId}
-                    hidePostTarget={false}
-                    readonly={readonly}
-                    onDeleted={(postId) => removeItem(postId)}
-                  />
+                  <Carousel responsive={responsive}>
+                    <Post
+                      key={content.postId}
+                      postId={content.postId}
+                      hidePostTarget={false}
+                      readonly={readonly}
+                      onDeleted={(postId) => removeItem(postId)}
+                    />
+                    <div style={{ marginLeft: 6 }}>
+                      <Post
+                        key={content.postId}
+                        postId={content.postId}
+                        hidePostTarget={false}
+                        readonly={readonly}
+                        onDeleted={(postId) => removeItem(postId)}
+                      />
+                    </div>
+                    <div style={{ marginLeft: 6 }}>
+                      <Post
+                        key={content.postId}
+                        postId={content.postId}
+                        hidePostTarget={false}
+                        readonly={readonly}
+                        onDeleted={(postId) => removeItem(postId)}
+                      />
+                    </div>
+                  </Carousel>
+
                 ))}
               />
             )}
@@ -352,7 +390,6 @@ const BaseFeed = ({
   function renderLoadingSkeleton() {
     return new Array(3).fill(3).map((_, index) => <DefaultPostRenderer key={index} loading />);
   }
-
   return (
     <>
       {showPostCreator && (
@@ -392,6 +429,7 @@ const BaseFeed = ({
                         hidePostTarget
                         readonly={readonly}
                       />
+
                     ))}
                   </>
                 }
@@ -429,7 +467,7 @@ const SearchFeed = ({
   isHiddenProfile = false,
   posts = [],
   hasMore = false,
-  loadMore = () => {},
+  loadMore = () => { },
   isLoading = false,
   loadMoreHasBeenCalled = false,
 }: BaseFeedProps) => {

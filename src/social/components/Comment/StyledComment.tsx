@@ -33,7 +33,7 @@ import { useNotifications } from '~/core/providers/NotificationProvider';
 import { useDropdown } from '~/core/components/Dropdown/index';
 import useElementSize from '~/core/hooks/useElementSize';
 import { Frame, FrameContainer } from '~/core/components/Dropdown/styles';
-import { CommentRepository } from '@amityco/ts-sdk';
+import { CommentRepository, PostRepository } from '@amityco/ts-sdk';
 
 type OptionMenuProps = StyledCommentProps & {
   onEditCommentClick: () => void;
@@ -191,9 +191,11 @@ interface StyledCommentProps {
   isBanned?: boolean;
   mentionees?: Mentioned[];
   metadata?: Metadata;
+  pinnedComment?: string;
 }
 
 const StyledComment = (props: StyledCommentProps) => {
+
   const {
     commentId,
     authorName,
@@ -214,12 +216,20 @@ const StyledComment = (props: StyledCommentProps) => {
     isBanned,
     mentionees,
     metadata,
+    pinnedComment
   } = props;
   const { formatMessage } = useIntl();
+
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [buttonContainerRef, buttonContainerHeight] = useElementSize();
   const { isMarkAsCorrect } = metadata ?? {}
+  const [postData, setPostData] = useState<Amity.Post>()
+  const [markCommentData, setMarkCommentData] = useState<Amity.Comment<any>>()
+  const [markState, setMarkState] = useState('')
+
+  const [pinnedCommentId, setPinnedCommentId] = useState<string>('')
+
 
   const toggle = () => setIsMenuOpen((prev) => !prev);
 
@@ -235,6 +245,48 @@ const StyledComment = (props: StyledCommentProps) => {
     };
   }, [isMenuOpen]);
 
+  useEffect(() => {
+    if (markState === 'mark' && postData) {
+      updatePostFunc()
+    }
+    if (markState === 'unmark' && postData) {
+      removePinnedComment()
+    }
+  }, [markState])
+
+
+  const updatePostFunc = async () => {
+    if (postData && markCommentData) {
+
+      const updatedPost = {
+        metadata: markState === 'mark' ? { pinnedComment: markCommentData?.commentId } : { pinnedComment: '' }
+
+      };
+
+      const { data: post } = await PostRepository.updatePost(postData.postId, updatedPost);
+      console.log('post: ', post);
+    }
+  }
+
+  const removePinnedComment = async () => {
+    if (postData && markCommentData) {
+
+      const updatedPost = {
+        metadata: { pinnedComment: '' }
+
+      };
+
+      const { data: post } = await PostRepository.updatePost(postData.postId, updatedPost);
+      console.log('post remove: ', post);
+    }
+  }
+  useEffect(() => {
+
+    if (postData) {
+      setPinnedCommentId(postData?.metadata?.pinnedComment)
+    }
+  }, [postData])
+
   const markComment = async () => {
 
     const updatedComment = {
@@ -246,7 +298,17 @@ const StyledComment = (props: StyledCommentProps) => {
     };
 
     const { data: comment } = await CommentRepository.updateComment(commentId as string, updatedComment);
-    console.log('comment: ', comment);
+    if (comment) {
+      setMarkState('mark')
+      setMarkCommentData(comment)
+      const unsubscribe = PostRepository.getPost(comment.referenceId, async ({ data }) => {
+
+        setPostData(data)
+
+
+      });
+    }
+
 
   }
   const unMarkComment = async () => {
@@ -260,7 +322,13 @@ const StyledComment = (props: StyledCommentProps) => {
     };
 
     const { data: comment } = await CommentRepository.updateComment(commentId as string, updatedComment);
-    console.log('comment: ', comment);
+    if (comment) {
+      setMarkState('unmark')
+    }
+
+
+
+
 
   }
   return (
