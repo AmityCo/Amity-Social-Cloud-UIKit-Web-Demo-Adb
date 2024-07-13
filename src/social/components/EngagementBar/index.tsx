@@ -15,9 +15,10 @@ import { useNotifications } from '~/core/providers/NotificationProvider';
 interface EngagementBarProps {
   postId: string;
   readonly?: boolean;
+  hideComments?: boolean
 }
 
-const EngagementBar = ({ postId, readonly = false }: EngagementBarProps) => {
+const EngagementBar = ({ postId, readonly = false, hideComments }: EngagementBarProps) => {
   const [isComposeBarDisplayed, setComposeBarDisplayed] = useState(false);
   const notification = useNotifications();
   const toggleComposeBar = () => setComposeBarDisplayed((prevValue) => !prevValue);
@@ -91,6 +92,7 @@ const EngagementBar = ({ postId, readonly = false }: EngagementBarProps) => {
       handleAddComment={handleAddComment}
       onClickComment={toggleComposeBar}
       pinnedComment={metaData}
+      hideComments={hideComments}
     />
   );
 };

@@ -30,6 +30,7 @@ import { useDropdown } from '~/core/components/Dropdown/index';
 import useElementSize from '~/core/hooks/useElementSize';
 import { Frame, FrameContainer } from '~/core/components/Dropdown/styles';
 import { POSITION_BOTTOM, POSITION_RIGHT } from '~/helpers/getCssPosition';
+import { useMergePost } from '~/social/hooks/useMergePost';
 
 // Number of lines to show in a text post before truncating.
 const MAX_TEXT_LINES_DEFAULT = 8;
@@ -69,6 +70,7 @@ const OptionMenu = ({
   const community = useCommunity(communityId);
   const { currentUserId } = useSDK();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { updateMergePosts } = useMergePost()
 
   const { currentPosition, align, scrollableHeight } = useDropdown({
     dropdownRef,
@@ -88,13 +90,14 @@ const OptionMenu = ({
   const pollPost = childrenPosts.find((childPost) => childPost.dataType === 'poll');
 
   const addPostToMergePanel = async () => {
-    const updatedPost = {
-      metadata: { mergePostIds: [post.postId,'669102c4579282f1f70ad037','66755da90790ee74d7313470'] }
+    //   const updatedPost = {
+    //     metadata: { mergePostIds: [post.postId,'669102c4579282f1f70ad037','66755da90790ee74d7313470'] }
 
-    };
+    //   };
 
-    const { data } = await PostRepository.updatePost(post.postId, updatedPost);
-    console.log('data: ', data);
+    //   const { data } = await PostRepository.updatePost(post.postId, updatedPost);
+    //   console.log('data: ', data);
+    updateMergePosts(post)
   }
 
   const onReportClick = async () => {
@@ -184,6 +187,7 @@ const DefaultPostRenderer = (props: DefaultPostRendererProps) => {
     readonly,
     post,
     loading,
+    hideComments
   } = props;
   const { formatMessage } = useIntl();
   const [isEditing, setIsEditing] = useState(false);
@@ -317,7 +321,7 @@ const DefaultPostRenderer = (props: DefaultPostRendererProps) => {
 
           {hasChildrenPosts && <ChildrenContent contents={childrenPosts} />}
 
-          {!isPostUnderReview && <EngagementBar readonly={readonly} postId={post?.postId}  />}
+          {!isPostUnderReview && <EngagementBar hideComments={hideComments} readonly={readonly} postId={post?.postId} />}
 
           {isPostUnderReview && canReview && (
             <ReviewButtonsContainer data-qa-anchor="post-review">

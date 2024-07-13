@@ -23,6 +23,7 @@ export type PostRendererProps = {
   userRoles?: string[];
   loading?: boolean;
   avatarFileUrl?: string;
+  hideComments?: boolean
 };
 
 export type PostRendererConfigType = Record<

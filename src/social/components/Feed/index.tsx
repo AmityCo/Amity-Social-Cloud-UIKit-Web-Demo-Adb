@@ -87,15 +87,8 @@ const GlobalFeed = ({
                 loadMore={loadMore}
                 className="load-more no-border"
                 contentSlot={contents.map((content) => (
-                  <Carousel responsive={responsive}>
-                    <Post
-                      key={content.postId}
-                      postId={content.postId}
-                      hidePostTarget={false}
-                      readonly={readonly}
-                      onDeleted={(postId) => removeItem(postId)}
-                    />
-                    <div style={{ marginLeft: 6 }}>
+               
+                    <Carousel responsive={responsive}  >
                       <Post
                         key={content.postId}
                         postId={content.postId}
@@ -103,17 +96,26 @@ const GlobalFeed = ({
                         readonly={readonly}
                         onDeleted={(postId) => removeItem(postId)}
                       />
-                    </div>
-                    <div style={{ marginLeft: 6 }}>
-                      <Post
-                        key={content.postId}
-                        postId={content.postId}
-                        hidePostTarget={false}
-                        readonly={readonly}
-                        onDeleted={(postId) => removeItem(postId)}
-                      />
-                    </div>
-                  </Carousel>
+                      <div style={{ marginLeft: 6 }}>
+                        <Post
+                          key={content.postId}
+                          postId={content.postId}
+                          hidePostTarget={false}
+                          readonly={readonly}
+                          onDeleted={(postId) => removeItem(postId)}
+                        />
+                      </div>
+                      <div style={{ marginLeft: 6 }}>
+                        <Post
+                          key={content.postId}
+                          postId={content.postId}
+                          hidePostTarget={false}
+                          readonly={readonly}
+                          onDeleted={(postId) => removeItem(postId)}
+                        />
+                      </div>
+                    </Carousel>
+              
 
                 ))}
               />

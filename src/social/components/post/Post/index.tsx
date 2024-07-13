@@ -19,9 +19,10 @@ interface PostProps {
   hidePostTarget?: boolean;
   readonly?: boolean;
   onDeleted?: (postId: string) => void;
+  hideComments?: boolean
 }
 
-const Post = ({ postId, className, hidePostTarget, readonly, onDeleted }: PostProps) => {
+const Post = ({ postId, className, hidePostTarget, readonly, onDeleted, hideComments = false }: PostProps) => {
   const post = usePost(postId);
   const postedUser = useUser(post?.postedUserId);
   const avatarFileUrl = useImage({ fileId: postedUser?.avatarFileId, imageSize: 'small' });
@@ -88,6 +89,7 @@ const Post = ({ postId, className, hidePostTarget, readonly, onDeleted }: PostPr
         handleApprovePost,
         handleDeclinePost,
         handleDeletePost,
+        hideComments
       })}
     </>
   );

@@ -29,6 +29,7 @@ interface UIEngagementBarProps {
   isComposeBarDisplayed?: boolean;
   handleAddComment?: (text: string, mentionees: Mentionees, metadata: Metadata) => void;
   pinnedComment?: any;
+  hideComments?: boolean
 }
 
 const UIEngagementBar = ({
@@ -37,7 +38,8 @@ const UIEngagementBar = ({
   onClickComment,
   isComposeBarDisplayed,
   handleAddComment,
-  pinnedComment
+  pinnedComment,
+  hideComments
 }: UIEngagementBarProps) => {
   const { postId, targetType, targetId, reactions = {}, commentsCount, latestComments } = post;
   const [pinnedCommentID, setPinnedCommentID] = useState<string>('')
@@ -92,15 +94,33 @@ const UIEngagementBar = ({
               <CommentIcon /> <FormattedMessage id="comment" />
             </SecondaryButton>
           </InteractionBar>
-          {!expandComment && pinnedCommentID && <Comment key={pinnedCommentID} commentId={pinnedCommentID} />}
+          {!expandComment && pinnedCommentID && !hideComments && <Comment key={pinnedCommentID} commentId={pinnedCommentID} />}
 
 
-          {expandComment && post.commentsCount > 0 ?
+          {expandComment && post.commentsCount > 0 && !hideComments ?
+            <div>
+              <CommentList pinnedComment={pinnedCommentID} referenceId={postId} referenceType={'post'} limit={COMMENTS_PER_PAGE} />
+              <div
+                style={{
+                  padding: '12px 0px',
+                  fontWeight: 600,
+                  fontSize: 14,
+                  borderBottom: '1px solid #EBECEF',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+                onClick={() => setExpandComment(false)}
+              >
 
-            <CommentList pinnedComment={pinnedCommentID} referenceId={postId} referenceType={'post'} limit={COMMENTS_PER_PAGE} />
+                Hide comments section
+                <MdOutlineExpandCircleDown style={{ height: 20, width: 20, marginLeft: 4, transform: 'rotate(180deg)' }} />
+              </div>
+            </div>
+
             :
 
-            post.commentsCount > 1 &&
+            post.commentsCount > 1 && !hideComments &&
             <div
               style={{
                 padding: '12px 0px',

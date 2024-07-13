@@ -21,6 +21,8 @@ import { StoryProvider } from '~/v4/social/providers/StoryProvider';
 import CommunityFeed from '../CommunityFeed';
 import ViewStoryPage from '../ViewStoryPage';
 import AmityDraftStoryPage from '../DraftPage';
+import { Provider } from 'react-redux';
+import { store } from '../../../redux/store';
 
 const ApplicationContainer = styled.div`
   height: 100%;
@@ -71,6 +73,7 @@ const Community = () => {
   }, [client]);
 
   return (
+    <Provider store={store}>
     <StoryProvider>
       <ApplicationContainer>
         <MainLayout aside={<StyledCommunitySideMenu activeCommunity={page.communityId} />}>
@@ -120,6 +123,7 @@ const Community = () => {
         </MainLayout>
       </ApplicationContainer>
     </StoryProvider>
+    </Provider>
   );
 };
 
