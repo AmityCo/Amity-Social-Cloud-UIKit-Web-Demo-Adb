@@ -31,6 +31,7 @@ import useElementSize from '~/core/hooks/useElementSize';
 import { Frame, FrameContainer } from '~/core/components/Dropdown/styles';
 import { POSITION_BOTTOM, POSITION_RIGHT } from '~/helpers/getCssPosition';
 import { useMergePost } from '~/social/hooks/useMergePost';
+import { RiMagicFill } from 'react-icons/ri';
 
 // Number of lines to show in a text post before truncating.
 const MAX_TEXT_LINES_DEFAULT = 8;
@@ -277,83 +278,106 @@ const DefaultPostRenderer = (props: DefaultPostRendererProps) => {
   );
 
   return (
-    <PostContainer data-qa-anchor="post" className={className}>
-      <PostHeadContainer>
-        <PostHeader postId={post?.postId} hidePostTarget={hidePostTarget} loading={loading} />
-        {!loading && (
-          <OptionButtonContainer>
-            <div ref={buttonContainerRef}>
-              <OptionsButton
-                onClick={(event) => {
-                  event.stopPropagation();
-                  toggle();
-                }}
-                className={className}
-              >
-                <OptionsIcon />
-              </OptionsButton>
-            </div>
-            {isMenuOpen && (
-              <OptionMenu
-                {...props}
-                onApprove={onApprove}
-                onDecline={onDecline}
-                onClose={toggle}
-                onEditPostClick={() => openEditingPostModal()}
-                buttonContainerHeight={buttonContainerHeight}
-              />
+    <div>
+      <div style={{
+        background: '#fff',
+        paddingTop: '8px',
+        paddingLeft: '16px',
+        borderRadius: '4px 4px 0px 0px',
+        marginTop: '8px',
+        border: "1px solid #edeef2",
+        borderBottom: 'none'
+      }}>
+        {post?.metadata?.mergePostIds?.length > 0 ?
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+          }}>    <RiMagicFill size={21} color='#1054DE' />
+            <p style={{ fontWeight: 600, fontSize: 14, marginLeft: 8 }}>Merged post</p>
+          </div>
+          : ''}
+
+      </div>
+      <PostContainer data-qa-anchor="post" className={className}>
+
+        <PostHeadContainer>
+          <PostHeader postId={post?.postId} hidePostTarget={hidePostTarget} loading={loading} />
+          {!loading && (
+            <OptionButtonContainer>
+              <div ref={buttonContainerRef}>
+                <OptionsButton
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    toggle();
+                  }}
+                  className={className}
+                >
+                  <OptionsIcon />
+                </OptionsButton>
+              </div>
+              {isMenuOpen && (
+                <OptionMenu
+                  {...props}
+                  onApprove={onApprove}
+                  onDecline={onDecline}
+                  onClose={toggle}
+                  onEditPostClick={() => openEditingPostModal()}
+                  buttonContainerHeight={buttonContainerHeight}
+                />
+              )}
+            </OptionButtonContainer>
+          )}
+        </PostHeadContainer>
+
+        {loading ? (
+          <ContentSkeleton />
+        ) : (
+          <>
+            <Content
+              data={liveStreamContent?.data ?? post?.data}
+              dataType={liveStreamContent?.dataType ?? post?.dataType}
+              postMaxLines={postMaxLines}
+              mentionees={post?.metadata?.mentioned}
+
+            />
+
+            {hasChildrenPosts && <ChildrenContent contents={childrenPosts} />}
+
+            {!isPostUnderReview && <EngagementBar hideComments={hideComments} readonly={readonly} postId={post?.postId} />}
+
+            {isPostUnderReview && canReview && (
+              <ReviewButtonsContainer data-qa-anchor="post-review">
+                <PrimaryButton
+                  data-qa-anchor="post-review-accept-button"
+                  disabled={approving || declining}
+                  onClick={onApprove}
+                >
+                  <FormattedMessage id="general.action.accept" />
+                </PrimaryButton>
+                <Button
+                  data-qa-anchor="post-review-decline-button"
+                  disabled={approving || declining}
+                  onClick={onDecline}
+                >
+                  <FormattedMessage id="general.action.decline" />
+                </Button>
+              </ReviewButtonsContainer>
             )}
-          </OptionButtonContainer>
+
+            {isEditing && (
+              <Modal
+                data-qa-anchor="post-editor-modal"
+                title={formatMessage({ id: 'post.editPost' })}
+                onCancel={closeEditingPostModal}
+              >
+                <PostEditor postId={post?.postId} onSave={closeEditingPostModal} />
+              </Modal>
+            )}
+          </>
         )}
-      </PostHeadContainer>
+      </PostContainer>
+    </div>
 
-      {loading ? (
-        <ContentSkeleton />
-      ) : (
-        <>
-          <Content
-            data={liveStreamContent?.data ?? post?.data}
-            dataType={liveStreamContent?.dataType ?? post?.dataType}
-            postMaxLines={postMaxLines}
-            mentionees={post?.metadata?.mentioned}
-
-          />
-
-          {hasChildrenPosts && <ChildrenContent contents={childrenPosts} />}
-
-          {!isPostUnderReview && <EngagementBar hideComments={hideComments} readonly={readonly} postId={post?.postId} />}
-
-          {isPostUnderReview && canReview && (
-            <ReviewButtonsContainer data-qa-anchor="post-review">
-              <PrimaryButton
-                data-qa-anchor="post-review-accept-button"
-                disabled={approving || declining}
-                onClick={onApprove}
-              >
-                <FormattedMessage id="general.action.accept" />
-              </PrimaryButton>
-              <Button
-                data-qa-anchor="post-review-decline-button"
-                disabled={approving || declining}
-                onClick={onDecline}
-              >
-                <FormattedMessage id="general.action.decline" />
-              </Button>
-            </ReviewButtonsContainer>
-          )}
-
-          {isEditing && (
-            <Modal
-              data-qa-anchor="post-editor-modal"
-              title={formatMessage({ id: 'post.editPost' })}
-              onCancel={closeEditingPostModal}
-            >
-              <PostEditor postId={post?.postId} onSave={closeEditingPostModal} />
-            </Modal>
-          )}
-        </>
-      )}
-    </PostContainer>
   );
 };
 

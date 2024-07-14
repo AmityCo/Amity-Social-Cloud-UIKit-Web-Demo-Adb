@@ -18,6 +18,7 @@ import usePostsCollection from '~/social/hooks/collections/usePostsCollection';
 import useCommunitiesCollection from '~/social/hooks/collections/useCommunitiesCollection';
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
+import { RiMagicFill } from "react-icons/ri";
 interface GlobalFeedProps {
   className?: string;
   feedType?: 'reviewing' | 'published';
@@ -38,7 +39,7 @@ const GlobalFeed = ({
   const { currentUserId } = useSDK();
   const { contents, isLoading, loadMore, prependItem, removeItem, hasMore, loadMoreHasBeenCalled } =
     useFeed();
-
+  console.log('contents: ', contents);
   function renderLoadingSkeleton() {
     return new Array(3).fill(3).map((_, index) => <DefaultPostRenderer key={index} loading />);
   }
@@ -87,8 +88,21 @@ const GlobalFeed = ({
                 loadMore={loadMore}
                 className="load-more no-border"
                 contentSlot={contents.map((content) => (
-               
-                    <Carousel responsive={responsive}  >
+
+                  <Carousel responsive={responsive}  >
+                    {content?.metadata?.mergePostIds?.length > 0 ?
+                      content?.metadata?.mergePostIds.map((item: string) =>
+                        <div >
+            
+                          <Post
+                            key={item}
+                            postId={item}
+                            hidePostTarget={false}
+                            readonly={readonly}
+                            onDeleted={(item) => removeItem(item)}
+                          />
+                        </div>
+                      ) :
                       <Post
                         key={content.postId}
                         postId={content.postId}
@@ -96,26 +110,12 @@ const GlobalFeed = ({
                         readonly={readonly}
                         onDeleted={(postId) => removeItem(postId)}
                       />
-                      <div style={{ marginLeft: 6 }}>
-                        <Post
-                          key={content.postId}
-                          postId={content.postId}
-                          hidePostTarget={false}
-                          readonly={readonly}
-                          onDeleted={(postId) => removeItem(postId)}
-                        />
-                      </div>
-                      <div style={{ marginLeft: 6 }}>
-                        <Post
-                          key={content.postId}
-                          postId={content.postId}
-                          hidePostTarget={false}
-                          readonly={readonly}
-                          onDeleted={(postId) => removeItem(postId)}
-                        />
-                      </div>
-                    </Carousel>
-              
+
+                    }
+
+
+                  </Carousel>
+
 
                 ))}
               />

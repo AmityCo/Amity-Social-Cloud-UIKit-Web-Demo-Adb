@@ -20,6 +20,7 @@ import { RiMagicFill } from "react-icons/ri";
 import { useMergePost } from '~/social/hooks/useMergePost';
 import Carousel from 'react-multi-carousel';
 import Post from '~/social/components/post/Post';
+import { PostRepository } from '@amityco/ts-sdk';
 
 interface NewsFeedProps {
   isOpen: boolean;
@@ -32,7 +33,7 @@ const NewsFeed = ({ isOpen, toggleOpen }: NewsFeedProps) => {
   const [searchPosts, setSearchPosts] = useState<Amity.Post[]>([]);
   const [isSearchLoading, setIsSearchLoading] = useState(false);
 
-  const { postList } = useMergePost()
+  const { postList, clearPosts } = useMergePost()
 
   const responsive = {
     desktop: {
@@ -52,6 +53,23 @@ const NewsFeed = ({ isOpen, toggleOpen }: NewsFeedProps) => {
     }
   };
   console.log('postList: ', postList);
+
+  const mergePostFunc = async () => {
+    const mergedPostIds = postList.map((item: Amity.Post) => item.postId)
+    const updatedPost = {
+      metadata: {
+        ...postList[0].metadata,
+        mergePostIds: mergedPostIds
+      }
+
+    };
+
+    const { data: post } = await PostRepository.updatePost(postList[0].postId, updatedPost);
+    if (post) {
+      clearPosts()
+    }
+    console.log('post: ', post);
+  }
   return (
     <Wrapper data-qa-anchor="news-feed">
 
@@ -108,7 +126,8 @@ const NewsFeed = ({ isOpen, toggleOpen }: NewsFeedProps) => {
           </div>
         }
         {postList.length > 0 && <div style={{ display: 'flex', justifyContent: 'end', margin: '10px 0px' }}>
-          <button style={{ background: '#1054DE', padding: '12px', fontWeight: 600, color: '#fff', borderRadius: 4, opacity: postList.length > 1 ? 1 : 0.5 }}>Begin Merge</button>
+          <button onClick={clearPosts} style={{ background: '#fff', padding: '12px', fontWeight: 600, color: '#1054DE', borderRadius: 4, opacity: postList.length > 1 ? 1 : 0.5 }}>Clear</button>
+          <button onClick={mergePostFunc} style={{ background: '#1054DE', padding: '12px', fontWeight: 600, color: '#fff', borderRadius: 4, opacity: postList.length > 1 ? 1 : 0.5 }}>Begin Merge</button>
         </div>}
 
 

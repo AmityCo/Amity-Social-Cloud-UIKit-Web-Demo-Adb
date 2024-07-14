@@ -28,12 +28,13 @@ const PlainPostContainer = ({
 }) => <div className={cx('post', className)} {...props} />;
 
 export const PostContainer = styled(PlainPostContainer)`
-  padding: 16px;
+  padding: 12px 16px;
   padding-bottom: 8px;
   background: ${({ theme }) => theme.palette.system.background};
   border: 1px solid #edeef2;
-  border-radius: 4px;
-  margin: 4px 0px;
+  border-top: none;
+  border-radius:0px 0px 4px 4px;
+  border
 `;
 
 export const PostHeadContainer = styled.div`
