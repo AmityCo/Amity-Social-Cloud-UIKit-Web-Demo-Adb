@@ -101,6 +101,9 @@ dependencies:
   react-multi-carousel:
     specifier: ^2.8.5
     version: 2.8.5
+  react-multi-select-component:
+    specifier: ^4.3.4
+    version: 4.3.4(react-dom@18.3.1)(react@18.3.1)
   react-redux:
     specifier: ^9.1.2
     version: 9.1.2(@types/react@17.0.80)(react@18.3.1)(redux@5.0.1)
@@ -199,6 +202,9 @@ devDependencies:
   '@types/react-mentions':
     specifier: ^4.1.13
     version: 4.1.13
+  '@types/react-scroll':
+    specifier: ^1.8.10
+    version: 1.8.10
   '@types/react-timeago':
     specifier: ^4.1.7
     version: 4.1.7
@@ -6186,6 +6192,12 @@ packages:
 
   /@types/react-mentions@4.1.13:
     resolution: {integrity: sha512-kRulAAjlmhCtsJ9bapO0foocknaE/rEuFKpmFEU81fBfnXZmZNBaJ9J/DBjwigT3WDHjQVUmYoi5sxEXrcdzAw==}
+    dependencies:
+      '@types/react': 17.0.80
+    dev: true
+
+  /@types/react-scroll@1.8.10:
+    resolution: {integrity: sha512-RD4Z7grbdNGOKwKnUBKar6zNxqaW3n8m9QSrfvljW+gmkj1GArb8AFBomVr6xMOgHPD3v1uV3BrIf01py57daQ==}
     dependencies:
       '@types/react': 17.0.80
     dev: true
@@ -12561,6 +12573,16 @@ packages:
   /react-multi-carousel@2.8.5:
     resolution: {integrity: sha512-C5DAvJkfzR2JK9YixZ3oyF9x6R4LW6nzTpIXrl9Oujxi4uqP9SzVVCjl+JLM3tSdqdjAx/oWZK3dTVBSR73Q+w==}
     engines: {node: '>=8'}
+    dev: false
+
+  /react-multi-select-component@4.3.4(react-dom@18.3.1)(react@18.3.1):
+    resolution: {integrity: sha512-Ui/bzCbROF4WfKq3OKWyQJHmy/bd1mW7CQM+L83TfiltuVvHElhKEyPM3JzO9urIcWplBUKv+kyxqmEnd9jPcA==}
+    peerDependencies:
+      react: ^16 || ^17 || ^18
+      react-dom: ^16 || ^17 || ^18
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
     dev: false
 
   /react-native-uuid@2.0.2:

@@ -7,6 +7,7 @@ import { useInputAutocomplete } from '~/core/components/InputAutocomplete';
 import InputText from '~/core/components/InputText';
 import { useCustomComponent } from '~/core/providers/CustomComponentsProvider';
 import useSearchPostsCollection from '~/social/hooks/collections/useSearchPostsCollection';
+import { MultiSelect } from "react-multi-select-component";
 
 const Container = styled.div`
   position: relative;
@@ -32,15 +33,24 @@ const SocialSearch = ({
   });
   const [lastSearchValue, setLastSearchValue] = useState<string>('');
   const [debounceTimeout, setDebounceTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [selected, setSelected] = useState([]);
+  console.log('selected: ', selected);
+
+
+  const options = [
+    { label: "photoshop", value: "photoshop" },
+    { label: "illustrator", value: "illustrator" },
+    { label: "Question", value: "question" },
+  ];
 
   function onClear() {
     setSearchValue('');
   }
 
-  const fetchPosts = async (searchText: string) => {
+  const fetchPosts = async (searchText?: string) => {
     try {
       setIsSearchLoading(true);
-      const result = await useSearchPostsCollection({ text: searchText });
+      const result = await useSearchPostsCollection({ text: searchText ?? '', tags: selected.map(item => (item as any).value) });
       setSearchPosts(result.posts.length > 0 ? result.posts : []);
     } catch (error) {
       console.error('Error fetching posts:', error);
@@ -75,7 +85,10 @@ const SocialSearch = ({
     if (lastSearchValue && !searchValue) {
       setSearchPosts([]);
     }
-  }, [searchValue, lastSearchValue, debouncedFetchPosts]);
+    if (selected) {
+      fetchPosts(searchValue);
+    }
+  }, [searchValue, lastSearchValue, debouncedFetchPosts, selected]);
 
   // Clean up the debounce function on unmount
   useEffect(() => {
@@ -91,19 +104,35 @@ const SocialSearch = ({
       <FormattedMessage id="exploreHeader.searchPostPlaceholder">
         {([placeholder]) => (
           <Container ref={containerRef}>
-            <InputText
-              data-qa-anchor="social-search-input"
-              value={searchValue}
-              prepend={
-                <SearchIconContainer>
-                  <SearchIcon />
-                </SearchIconContainer>
-              }
-              placeholder={typeof placeholder === 'string' ? placeholder : undefined}
-              onClear={onClear}
-              onChange={(newValue) => setSearchValue?.(newValue.plainText)}
-              onClick={() => open()}
-            />
+            <div style={{ display: 'flex', flex: 3, gap: 12 }}>
+              <div style={{ flex: 2 }}>
+                <p style={{ fontWeight: 600 }}>Search posts</p>
+                <InputText
+
+                  data-qa-anchor="social-search-input"
+                  value={searchValue}
+                  prepend={
+                    <SearchIconContainer>
+                      <SearchIcon />
+                    </SearchIconContainer>
+                  }
+                  placeholder={typeof placeholder === 'string' ? placeholder : undefined}
+                  onClear={onClear}
+                  onChange={(newValue) => setSearchValue?.(newValue.plainText)}
+                  onClick={() => open()}
+                />
+              </div>
+              <div style={{ flex: 1, padding: 0 }}>
+                <p style={{ fontWeight: 600 }}>tags</p>
+                <MultiSelect
+                  options={options}
+                  value={selected}
+                  onChange={setSelected}
+                  labelledBy="tags"
+                />
+              </div>
+            </div>
+
           </Container>
         )}
       </FormattedMessage>

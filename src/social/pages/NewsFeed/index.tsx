@@ -22,6 +22,7 @@ import Carousel from 'react-multi-carousel';
 import Post from '~/social/components/post/Post';
 import { PostRepository } from '@amityco/ts-sdk';
 
+
 interface NewsFeedProps {
   isOpen: boolean;
   toggleOpen: () => void;
@@ -34,6 +35,7 @@ const NewsFeed = ({ isOpen, toggleOpen }: NewsFeedProps) => {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
 
   const { postList, clearPosts } = useMergePost()
+
 
   const responsive = {
     desktop: {
@@ -61,7 +63,8 @@ const NewsFeed = ({ isOpen, toggleOpen }: NewsFeedProps) => {
         ...postList[0].metadata,
         mergePostIds: mergedPostIds
       }
-
+      ,
+      tags: ['question']
     };
 
     const { data: post } = await PostRepository.updatePost(postList[0].postId, updatedPost);
@@ -79,6 +82,7 @@ const NewsFeed = ({ isOpen, toggleOpen }: NewsFeedProps) => {
           setSearchPosts={setSearchPosts}
           setIsSearchLoading={setIsSearchLoading}
         />
+
       </div>
       <div style={{
         borderRadius: 8,

@@ -18,7 +18,7 @@ import usePostsCollection from '~/social/hooks/collections/usePostsCollection';
 import useCommunitiesCollection from '~/social/hooks/collections/useCommunitiesCollection';
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
-import { RiMagicFill } from "react-icons/ri";
+
 interface GlobalFeedProps {
   className?: string;
   feedType?: 'reviewing' | 'published';
@@ -60,6 +60,8 @@ const GlobalFeed = ({
       slidesToSlide: 1 // optional, default to 1.
     }
   };
+
+
   return (
     <>
       {showPostCreator ? (

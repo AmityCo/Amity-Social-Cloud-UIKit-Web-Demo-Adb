@@ -396,12 +396,6 @@ const StyledComment = (props: StyledCommentProps) => {
         ) : (
           <div style={{ display: 'flex', gap: 8 }}>
             <CommentText text={text} mentionees={mentionees} isMark={isMarkAsCorrect} />
-            {
-              isMarkAsCorrect &&
-              <p style={{ color: '#44B556' }}>Correct answer</p>
-            }
-
-
           </div>
 
         )}

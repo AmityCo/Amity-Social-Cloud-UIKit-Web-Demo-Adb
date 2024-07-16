@@ -29,7 +29,8 @@ interface UIEngagementBarProps {
   isComposeBarDisplayed?: boolean;
   handleAddComment?: (text: string, mentionees: Mentionees, metadata: Metadata) => void;
   pinnedComment?: any;
-  hideComments?: boolean
+  hideComments?: boolean;
+  onClickExpandSection?: () => void;
 }
 
 const UIEngagementBar = ({
@@ -39,7 +40,8 @@ const UIEngagementBar = ({
   isComposeBarDisplayed,
   handleAddComment,
   pinnedComment,
-  hideComments
+  hideComments,
+  onClickExpandSection
 }: UIEngagementBarProps) => {
   const { postId, targetType, targetId, reactions = {}, commentsCount, latestComments } = post;
   const [pinnedCommentID, setPinnedCommentID] = useState<string>('')
@@ -66,6 +68,16 @@ const UIEngagementBar = ({
   const totalLikes = reactions[LIKE_REACTION_KEY] || 0;
 
   const [expandComment, setExpandComment] = useState<boolean>(false)
+
+  useEffect(() => {
+    onClickExpandSection && onClickExpandSection()
+  }, [expandComment])
+
+
+  const hideCommentSection = () => {
+    setExpandComment(false)
+
+  }
   return (
     <EngagementBarContainer>
       <Counters>
@@ -110,7 +122,7 @@ const UIEngagementBar = ({
                   display: 'flex',
                   alignItems: 'center'
                 }}
-                onClick={() => setExpandComment(false)}
+                onClick={hideCommentSection}
               >
 
                 Hide comments section
@@ -129,7 +141,8 @@ const UIEngagementBar = ({
                 borderBottom: '1px solid #EBECEF',
                 cursor: 'pointer',
                 display: 'flex',
-                alignItems: 'center'
+                alignItems: 'center',
+                justifyContent: 'center'
               }}
               onClick={() => setExpandComment(true)}
             >
